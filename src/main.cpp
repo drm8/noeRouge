@@ -2,39 +2,53 @@
 
 // Includes
 #include <iostream>
+#include <vector>
 #include <cstdlib>
 
 // Local includes
-#include "enemies.h"
+#include "object.h"
 
-
-// coffeeKat (John):
-// General screen idea is a grid of characters that looks generall as folows
+/*
+// TODO list (class voted it to be here)
+// This list is worse than a todo at each thing because you have to just figure
+// out where to work on each item listed here
 //
-// - - - - - - - - - - -
-// - - - - @ - - - - - #
-// - - - - - - - - - - #
-// - - - - - - - - - - D
-// - - - - - P - - - - #
+// Doing it this way is objectivly worse in every way and has only
+// disadvantages. I will comply but I beg that everyone agrees to 
+// do it the other way instead
 //
-// Size of screen is not decided yet
-// P is the player
-// @ is an enemy
-// # is wall
-// D is door
-//
-// None of this is set in stone and I will create a discussion for us to
-// decide
-//
-// Game shall update at *varible* frames per second and you can move
-// when the game updates next
-
+// 00 - Create a "game" class that holds deltatime, the map, the handlers, and
+//      the game loop isRunning flag. This object will be global
+// 01 - Game loop with time code
+*/
 
 int main() {
+    // TODO 00
+    bool isGameRunning = true;
+    // Create the objectHandler
+    class objectHandler objectHandler;
+    class gameObject *testObject;
+
     // Print version info
     std::cout << "noeRouge alpha v0.1\n";
 
-    // Do nothing (for now)
+    // Test object creation
+    objectHandler.createObject();
+    testObject = objectHandler.getObject(0);
+    std::cout << testObject->getId() << std::endl;
+
+    objectHandler.tickAll();
+
+    // TODO 01
+    /*
+    while (isGameRunning) {
+        time stuff
+
+        if (tick) {
+            objectHandler.tickAll();
+        }
+    }
+    */
 
     return 0;
 }
