@@ -26,6 +26,11 @@ class gameObject *objectHandler::createObject() {
     return newObject;
 }
 
+class player *objectHandler::createPlayer() {
+    // Do nothing (for now)
+    ;;
+}
+
 class gameObject *objectHandler::getObject(int id) {
     return this->allObjects[id];
 }

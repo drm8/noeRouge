@@ -10,6 +10,9 @@
 //
 */
 
+// Prototype player
+class player;
+
 class gameObject {
 private:
     int id;
@@ -26,9 +29,9 @@ public:
     // Getters
     int getId();
 
-    void onTick();
+    virtual void onTick();
     // TODO 00
-    void onRender();
+    virtual void onRender();
 };
 
 class objectHandler {
@@ -49,6 +52,7 @@ public:
     void tickAll();
     class gameObject *getObject(int id);
     class gameObject *createObject();
+    class player *createPlayer();
 };
 
 #endif
