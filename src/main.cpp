@@ -38,6 +38,9 @@ int main() {
     testObject = objectHandler.getObject(0);
     std::cout << testObject->getId() << std::endl;
 
+    // Create a player so we can see it tick
+    objectHandler.createPlayer();
+
     objectHandler.tickAll();
 
     // TODO 01

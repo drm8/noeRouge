@@ -10,14 +10,12 @@
 //
 */
 
-// Prototype player
-class player;
-
 class gameObject {
 private:
     int id;
 
 public:
+    gameObject() {}
     gameObject(int id) {
         this->id = id;
     }
@@ -28,6 +26,8 @@ public:
 
     // Getters
     int getId();
+    // Setters
+    void setId(int id);
 
     virtual void onTick();
     // TODO 00

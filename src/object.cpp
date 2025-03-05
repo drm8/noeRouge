@@ -6,6 +6,10 @@ int gameObject::getId() {
     return this->id;
 }
 
+void gameObject::setId(int id) {
+    this->id = id;
+}
+
 void gameObject::onTick() {
     printf("I am a generic object, my id is %d, and I have been ticked\n", this->id);
     return;
@@ -24,11 +28,6 @@ class gameObject *objectHandler::createObject() {
     this->allObjects.push_back(newObject);
     this->numberOfObjects++;
     return newObject;
-}
-
-class player *objectHandler::createPlayer() {
-    // Do nothing (for now)
-    ;;
 }
 
 class gameObject *objectHandler::getObject(int id) {
