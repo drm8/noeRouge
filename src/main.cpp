@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include "raylib.h"
 
 // Local includes
 #include "object.h"
