@@ -26,10 +26,11 @@ class Sprite
 	Texture2D texture;
 	Vector2 centeredPosition;
 	Vector2 realPosition;
-	int scale = 1;
+	float layer;
 	float rotation = 0;
-	Vector2 pivotPoint;
+	int scale = 1;
 	Color tint = WHITE;
+	Vector2 pivotPoint;
 
 	public:
 	Rectangle boundingRect;
@@ -39,10 +40,11 @@ class Sprite
 
 	}
 
-	Sprite( Texture2D texture, Vector2 position )
+	Sprite( Texture2D texture, Vector2 position, float layer )
 	{
 		this->texture = texture;
 		setPosition( position );
+		this->layer = layer;
 	}
 
 	Vector2 getPosition( )
@@ -106,10 +108,13 @@ class CustomCamera
 		return viewRectangle;
 	}
 
+	/*---------------------------------------------------------------------------------------------------------
+	* @brief: sorts and renders all sprites in the buffer to a texture, later used by the renderToScreen method
+	*/
 	void prepareRender( )
 	{
-		// Culling sprites that aren't within the camera's view
-		// Iteration has to occur backwards because indices are shifted back when deleting elements
+		   // Culling sprites that aren't within the camera's view
+		   // Iteration has to occur backwards because indices are shifted back when deleting elements
 		for ( int i = buffer.size( ) - 1; i >= 0; i-- )
 		{
 			if ( !CheckCollisionRecs( viewRectangle, buffer.at( i )->boundingRect ) )
@@ -118,9 +123,10 @@ class CustomCamera
 			}
 		}
 
+		   // Sorting buffer by layer (lowest to highest)
 		// TODO: Implement layer sorting
       
-		// Rendering everything in the buffer to a texture
+		   // Rendering everything in the buffer to a texture
 		BeginTextureMode( renderTexture );
 		ClearBackground( BLACK );
 		for ( Sprite *sprite : buffer )
@@ -142,16 +148,21 @@ class ScreenHandler
 	private:
 	int width = 1280;
 	int height = 720;
+	int framesPerSecond = 60;
+	const char* windowName = (char*)"noeRouge alpha v0.1";
 
 	public:
-	std::vector<CustomCamera*> cameras = {};
+	std::vector<CustomCamera*> cameras = {}; // The cameras actively being used
 
 	ScreenHandler( )
 	{
-		InitWindow( width, height, "test" );
-		SetTargetFPS( 60 );
+		InitWindow( width, height, windowName );
+		SetTargetFPS( framesPerSecond );
 	}
 
+	/*--------------------------------------------------------------
+	* @brief: Calls camera render functions and refreshes the screen
+	*/
 	void renderAll( )
 	{
 		for ( CustomCamera *camera : cameras )
