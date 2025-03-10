@@ -70,22 +70,22 @@ class CustomCamera
 	private:
 	std::vector<Sprite*> buffer;
 	RenderTexture2D renderTexture;
-	Vector2 position;
-	Vector2 topLeft;
-	Vector2 size;
-	float renderScale;
+	Vector2 centeredPosition;
+	Vector2 realPosition;
+	Vector2 resolution;
+	float renderScale;               // How much the renderTexture is scaled up when drawing to the screen
 	Rectangle viewRectangle;
 	public:
-	CustomCamera( Vector2 position, Vector2 size, float renderScale )
+	CustomCamera( Vector2 position, Vector2 resolution, float renderScale )
 	{
 		buffer = { };
-		renderTexture = LoadRenderTexture( (int) size.x, ( int ) size.y );
-		this->size = size;
+		renderTexture = LoadRenderTexture( (int) resolution.x, ( int ) resolution.y );
+		this->resolution = resolution;
 		setPosition( position );
 		this->renderScale = renderScale;
-		viewRectangle = { position.x - size.x / 2, position.y - size.y / 2, size.x, size.y };
+		viewRectangle = { position.x - resolution.x / 2, position.y - resolution.y / 2, resolution.x, resolution.y };
 	}
-	CustomCamera( Vector2 size, float renderScale ) : CustomCamera( Vector2 { 0, 0 }, size, renderScale )
+	CustomCamera( Vector2 resolution, float renderScale ) : CustomCamera( Vector2 { 0, 0 }, resolution, renderScale )
 	{;}
 	CustomCamera( ) : CustomCamera( Vector2 { defaultCamWidth, defaultCamHeight }, 1.0f )
 	{;}
@@ -97,14 +97,14 @@ class CustomCamera
 
 	Vector2 getPosition( )
 	{
-		return position;
+		return centeredPosition;
 	}
 
 	Rectangle setPosition( Vector2 position )
 	{
-		this->position = position;
-		this->topLeft = { position.x - size.x / 2, position.y - size.y / 2 };
-		viewRectangle = { topLeft.x, topLeft.y, size.x, size.y };
+		this->centeredPosition = position;
+		this->realPosition = { position.x - resolution.x / 2, position.y - resolution.y / 2 };
+		viewRectangle = { realPosition.x, realPosition.y, resolution.x, resolution.y };
 		return viewRectangle;
 	}
 
@@ -115,7 +115,7 @@ class CustomCamera
 	{
 		   // Culling sprites that aren't within the camera's view
 		   // Iteration has to occur backwards because indices are shifted back when deleting elements
-		for ( int i = buffer.size( ) - 1; i >= 0; i-- )
+		for ( int i = buffer.resolution( ) - 1; i >= 0; i-- )
 		{
 			if ( !CheckCollisionRecs( viewRectangle, buffer.at( i )->boundingRect ) )
 			{
@@ -131,7 +131,7 @@ class CustomCamera
 		ClearBackground( BLACK );
 		for ( Sprite *sprite : buffer )
 		{
-			sprite->render( topLeft );
+			sprite->render( realPosition );
 		}
 		buffer.clear( );
 		EndTextureMode( );
