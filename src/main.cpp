@@ -61,8 +61,10 @@ int main() {
     Texture2D testTexture2 = LoadTextureFromImage( GenImageColor( 16, 16, GREEN ) );
     while ( !WindowShouldClose() )
     {
-       mainCamera.addToBuffer( &Sprite( testTexture, Vector2 {40.0f, 20.0f} ) );
-       mainCamera.addToBuffer( &Sprite( testTexture2, Vector2 { 0.0f, 0.0f } ) );
+       Sprite sprite1 = Sprite( testTexture, Vector2 { 40.0f, 20.0f } );
+       Sprite sprite2 = Sprite( testTexture2, Vector2 { 0.0f, 0.0f } );
+       mainCamera.addToBuffer( &sprite1 );
+       mainCamera.addToBuffer( &sprite2 );
        screenHandler.renderAll( );
     }
     

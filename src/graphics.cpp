@@ -1,5 +1,5 @@
 /*
-* Worked on by Adam Aronow
+* Adam Aronow
 */
 
 #include "raylib.h"
