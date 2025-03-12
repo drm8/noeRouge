@@ -26,6 +26,7 @@ class Sprite
 	Texture2D texture;
 	Vector2 centeredPosition;
 	Vector2 realPosition;
+	Rectangle boundingRect;
 	float layer;
 	float rotation = 0;
 	int scale = 1;
@@ -33,35 +34,138 @@ class Sprite
 	Vector2 pivotPoint;
 
 	public:
-	Rectangle boundingRect;
-
-	Sprite( )
+	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
 	{
-
+		update( texture, position, layer, rotation, scale, tint, pivotPoint );
 	}
 
+	         // Constructors with fewer parameters
+	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint )
+		: Sprite( texture, position, layer, rotation, scale, tint, Vector2 {0.0f, 0.0f } )
+	{;}
+	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale )
+		: Sprite( texture, position, layer, rotation, scale, WHITE, Vector2 {0.0f, 0.0f } )
+	{;}
+	Sprite( Texture2D texture, Vector2 position, float layer, float rotation )
+		: Sprite( texture, position, layer, rotation, 1.0f, WHITE, Vector2 { 0.0f, 0.0f } )
+	{;}
 	Sprite( Texture2D texture, Vector2 position, float layer )
+		: Sprite( texture, position, layer, 0.0f, 1.0f, WHITE, Vector2 { 0.0f, 0.0f } )
+	{;}
+	Sprite( )
+	{;}
+
+	/*-----------------------------------------------
+	* @brief: updates all data members with new values
+	*/
+	void update( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
 	{
 		this->texture = texture;
 		setPosition( position );
 		this->layer = layer;
+		this->rotation = rotation;
+		this->scale = scale;
+		this->tint = tint;
+		this->pivotPoint = pivotPoint;
+	}
+	void update( Vector2 position, float layer )
+	{
+		setPosition( position );
+		this->layer = layer;
+		this->rotation = rotation;
 	}
 
+	void render( Vector2 cameraPosition )
+	{
+		DrawTextureEx( texture, Vector2Subtract( realPosition, cameraPosition ), rotation, scale, tint );
+	}
+
+	bool operator < ( Sprite sprite )
+	{
+		return layer < sprite.layer;
+	}
+	bool operator <= ( Sprite sprite )
+	{
+		return layer <= sprite.layer;
+	}
+	bool operator > ( Sprite sprite )
+	{
+		return layer > sprite.layer;
+	}
+	bool operator >= ( Sprite sprite )
+	{
+		return layer >= sprite.layer;
+	}
+	bool operator == ( Sprite sprite )
+	{
+		return layer == sprite.layer;
+	}
+	bool operator != ( Sprite sprite )
+	{
+		return layer != sprite.layer;
+	}
+
+	Texture2D getTexture( )
+	{
+		return texture;
+	}
+	void setTexture( Texture2D texture )
+	{
+		this->texture = texture;
+	}
 	Vector2 getPosition( )
 	{
 		return centeredPosition;
 	}
-
 	void setPosition( Vector2 position )
 	{
 		centeredPosition = position;
 		realPosition = Vector2 { position.x - texture.width / 2, position.y - texture.height / 2 };
 		boundingRect = { realPosition.x, realPosition.y, ( float ) texture.width, ( float ) texture.height };
 	}
-
-	void render( Vector2 cameraPosition )
+	Rectangle getBoundingRect( )
 	{
-		DrawTextureEx( texture, Vector2Subtract( realPosition, cameraPosition ), rotation, scale, tint );
+		return boundingRect;
+	}
+	float getLayer( )
+	{
+		return layer;
+	}
+	void setLayer( float layer )
+	{
+		this->layer = layer;
+	}
+	float getRotation( )
+	{
+		return rotation;
+	}
+	void setRotation( float rotation )
+	{
+		this->rotation = rotation;
+	}
+	float getScale( )
+	{
+		return scale;
+	}
+	void setScale( float scale )
+	{
+		this->scale = scale;
+	}
+	Color getTint( )
+	{
+		return tint;
+	}
+	void setTint( Color tint )
+	{
+		this->tint = tint;
+	}
+	Vector2 getPivotPoint( )
+	{
+		return pivotPoint;
+	}
+	void setPivotPoint( Vector2 pivotPoint )
+	{
+		this->pivotPoint = pivotPoint;
 	}
 };
 
@@ -115,9 +219,9 @@ class CustomCamera
 	{
 		   // Culling sprites that aren't within the camera's view
 		   // Iteration has to occur backwards because indices are shifted back when deleting elements
-		for ( int i = buffer.resolution( ) - 1; i >= 0; i-- )
+		for ( int i = buffer.size( ) - 1; i >= 0; i-- )
 		{
-			if ( !CheckCollisionRecs( viewRectangle, buffer.at( i )->boundingRect ) )
+			if ( !CheckCollisionRecs( viewRectangle, buffer.at( i )->getBoundingRect() ) )
 			{
 				buffer.erase( buffer.begin() + i );
 			}
