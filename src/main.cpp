@@ -3,12 +3,14 @@
 // Includes
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include <cstdlib>
 #include "raylib.h"
 
 // Local includes
 #include "object.h"
 #include "graphics.cpp"
+#include "textureloader.cpp"
 
 /*
 // TODO list (class voted it to be here)
@@ -23,6 +25,8 @@
 //      the game loop isRunning flag. This object will be global
 // 01 - Game loop with time code
 */
+
+std::unordered_map<std::string, Texture2D> textureMap = {};
 
 int main() {
     // TODO 00
@@ -55,23 +59,21 @@ int main() {
 
     // Render test
     class ScreenHandler screenHandler = ScreenHandler( );
+    loadAllTextures( );
     CustomCamera mainCamera = CustomCamera( Vector2 { 320.0f, 180.0f }, 4.0f );
     screenHandler.cameras.push_back( &mainCamera );
-    Texture2D testTexture = LoadTextureFromImage( GenImageColor( 32, 32, WHITE ) );
-    char* test = ( char* ) "../../../assets/graphics/placeholders/Placeholder player down (1).png";
-    Image testImage = LoadImage( test );
-    ImageFlipVertical( &testImage );
-    Texture2D testTexture2 = LoadTextureFromImage( testImage );
-    UnloadImage( testImage );
-    Sprite sprite1 = Sprite( testTexture, Vector2 { 40.0f, 20.0f }, 1.0f, 30.0f, 2.0f, BLUE );
-    Sprite sprite2 = Sprite( testTexture2, Vector2 { 0.0f, 0.0f }, 0.0f );
+    Sprite sprite1 = Sprite( textureMap[ "player" ], Vector2 { 0, 0 }, 0 );
+    Sprite sprite2 = Sprite( textureMap[ "enemy" ], Vector2 { -40, 20 }, 1, 30, 2, BLUE, { 0, 10 } );
+    sprite1.print( );
     while ( !WindowShouldClose() )
     {
-       sprite1.setRotation( sprite1.getRotation( ) + 0.5 );
+       sprite2.setRotation( sprite2.getRotation( ) + 2 );
        mainCamera.addToBuffer( &sprite1 );
        mainCamera.addToBuffer( &sprite2 );
        screenHandler.renderAll( );
     }
+
+    unloadAllTextures( );
 
     return 0;
 }

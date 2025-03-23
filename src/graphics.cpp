@@ -5,27 +5,19 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "vector"
+//#include "textureloader.cpp"
+#include <iostream>
 
 const float defaultCamWidth = 320;
 const float defaultCamHeight = 180;
-
-class TextureHandler
-{
-	private:
-
-	public:
-	TextureHandler( )
-	{
-
-	}
-};
 
 class Sprite
 {
 	protected:
 	Texture2D texture;
-	Vector2 centeredPosition;
-	Vector2 realPosition;
+	Vector2 position;
+	Rectangle sourceRect;
+	Rectangle destinationRect;
 	Rectangle boundingRect;
 	float layer;
 	float rotation = 0;
@@ -34,6 +26,11 @@ class Sprite
 	Vector2 pivotPoint;
 
 	public:
+	Sprite( std::string texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
+	{
+		update( texture, position, layer, rotation, scale, tint, pivotPoint );
+	}
+
 	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
 	{
 		update( texture, position, layer, rotation, scale, tint, pivotPoint );
@@ -41,16 +38,28 @@ class Sprite
 
 	         // Constructors with fewer parameters
 	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint )
-		: Sprite( texture, position, layer, rotation, scale, tint, Vector2 {0.0f, 0.0f } )
+		: Sprite( texture, position, layer, rotation, scale, tint, Vector2 { 0, 0 } )
 	{;}
 	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale )
-		: Sprite( texture, position, layer, rotation, scale, WHITE, Vector2 {0.0f, 0.0f } )
+		: Sprite( texture, position, layer, rotation, scale, WHITE, Vector2 { 0, 0 } )
 	{;}
 	Sprite( Texture2D texture, Vector2 position, float layer, float rotation )
-		: Sprite( texture, position, layer, rotation, 1.0f, WHITE, Vector2 { 0.0f, 0.0f } )
+		: Sprite( texture, position, layer, rotation, 1, WHITE, Vector2 { 0, 0 } )
 	{;}
 	Sprite( Texture2D texture, Vector2 position, float layer )
-		: Sprite( texture, position, layer, 0.0f, 1.0f, WHITE, Vector2 { 0.0f, 0.0f } )
+		: Sprite( texture, position, layer, 0, 1, WHITE, Vector2 { 0, 0 } )
+	{;}
+	Sprite( std::string texture, Vector2 position, float layer, float rotation, float scale, Color tint )
+		: Sprite( texture, position, layer, rotation, scale, tint, Vector2 { 0, 0 } )
+	{;}
+	Sprite( std::string texture, Vector2 position, float layer, float rotation, float scale )
+		: Sprite( texture, position, layer, rotation, scale, WHITE, Vector2 { 0, 0 } )
+	{;}
+	Sprite( std::string texture, Vector2 position, float layer, float rotation )
+		: Sprite( texture, position, layer, rotation, 1, WHITE, Vector2 { 0, 0 } )
+	{;}
+	Sprite( std::string texture, Vector2 position, float layer )
+		: Sprite( texture, position, layer, 0, 1, WHITE, Vector2 { 0, 0 } )
 	{;}
 	Sprite( )
 	{;}
@@ -61,23 +70,66 @@ class Sprite
 	void update( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
 	{
 		this->texture = texture;
-		setPosition( position );
+		this->position = position;
 		this->layer = layer;
 		this->rotation = rotation;
 		this->scale = scale;
 		this->tint = tint;
 		this->pivotPoint = pivotPoint;
+		updateRectangles( );
+	}
+	void update( std::string texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
+	{
+		//this->texture = textureMap[texture];
+		this->position = position;
+		this->layer = layer;
+		this->rotation = rotation;
+		this->scale = scale;
+		this->tint = tint;
+		this->pivotPoint = pivotPoint;
+		updateRectangles( );
 	}
 	void update( Vector2 position, float layer )
 	{
-		setPosition( position );
+		this->position = position;
 		this->layer = layer;
 		this->rotation = rotation;
+		updateRectangles( );
+	}
+
+	void updateRectangles( )
+	{
+		Vector2 pivotOffset = Vector2Rotate( pivotPoint, (PI * rotation / 180) );
+		destinationRect = { position.x + pivotPoint.x, position.y + pivotPoint.y, ( float ) texture.width * scale, ( float ) texture.height * scale };
+		sourceRect = { 0, 0, ( float ) texture.width, ( float ) texture.height };
+
+		if ( rotation == 0 )
+		{
+			boundingRect = { destinationRect.x + pivotOffset.x, destinationRect.y + pivotOffset.y,
+				destinationRect.width, destinationRect.height };
+		}
+		else
+		{
+			// safeSize = (longside/2)^2 + 1 | Represents the max width and height that could result from rotating the texture
+			float safeSize = sqrt( 2 * pow( ( std::max( destinationRect.width, destinationRect.height ) / 2 ), 2 ) ) + 1;
+			boundingRect = { position.x + pivotOffset.x - safeSize, position.y + pivotOffset.y - safeSize,
+				safeSize * 2, safeSize * 2 };
+		}
 	}
 
 	void render( Vector2 cameraPosition )
 	{
-		DrawTextureEx( texture, Vector2Subtract( realPosition, cameraPosition ), rotation, scale, tint );
+		Rectangle realDestination = { destinationRect.x - cameraPosition.x, destinationRect.y - cameraPosition.y,
+			destinationRect.width, destinationRect.height };
+		Vector2 origin = { pivotPoint.x + destinationRect.width / 2, pivotPoint.y + destinationRect.height / 2 };
+		DrawTexturePro( texture, sourceRect, realDestination, origin, rotation, tint );
+	}
+
+	void print( )
+	{
+		std::cout << "Sprite " << this << ":\n\tposition = {" << position.x << ", " << position.y << "}\n\tlayer = " << layer
+			<< "\n\trotation = " << rotation << "\n\tscale = " << scale << "\n\ttint = {" << (int)tint.r << ", "
+			<< ( int ) tint.g << ", " << ( int ) tint.b << "}\n\tpivotPoint = {" << pivotPoint.x << ", " << pivotPoint.y << "}\n";
 	}
 
 	bool operator < ( Sprite sprite )
@@ -112,16 +164,16 @@ class Sprite
 	void setTexture( Texture2D texture )
 	{
 		this->texture = texture;
+		updateRectangles( );
 	}
 	Vector2 getPosition( )
 	{
-		return centeredPosition;
+		return position;
 	}
 	void setPosition( Vector2 position )
 	{
-		centeredPosition = position;
-		realPosition = Vector2 { position.x - texture.width / 2, position.y - texture.height / 2 };
-		boundingRect = { realPosition.x, realPosition.y, ( float ) texture.width, ( float ) texture.height };
+		this->position = position;
+		updateRectangles( );
 	}
 	Rectangle getBoundingRect( )
 	{
@@ -142,6 +194,7 @@ class Sprite
 	void setRotation( float rotation )
 	{
 		this->rotation = rotation;
+		updateRectangles( );
 	}
 	float getScale( )
 	{
@@ -150,6 +203,7 @@ class Sprite
 	void setScale( float scale )
 	{
 		this->scale = scale;
+		updateRectangles( );
 	}
 	Color getTint( )
 	{
@@ -166,6 +220,7 @@ class Sprite
 	void setPivotPoint( Vector2 pivotPoint )
 	{
 		this->pivotPoint = pivotPoint;
+		updateRectangles( );
 	}
 };
 
@@ -243,7 +298,11 @@ class CustomCamera
 
 	void renderToScreen( )
 	{
-		DrawTextureEx( renderTexture.texture, { 0.0f, 0.0f }, 0.0f, renderScale, WHITE );
+		{
+			DrawTexturePro( renderTexture.texture, { 0, 0, resolution.x, -resolution.y },
+								 {0, 0, resolution.x * renderScale, resolution.y * renderScale },
+								 {0, 0}, 0, WHITE );
+		}
 	}
 };
 
