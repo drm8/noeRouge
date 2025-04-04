@@ -1,5 +1,6 @@
 /*
-* Adam Aronow
+* Worked on by:
+* Adam Aronow, Andrew Thomas
 */
 
 #include "raylib.h"
@@ -10,7 +11,73 @@
 const float defaultCamWidth = 320;
 const float defaultCamHeight = 180;
 
-class Sprite
+class BaseSprite
+{
+	protected:
+	float layer;
+
+	public:
+	BaseSprite( float layer )
+	{
+		this->layer = layer;
+	}
+
+	BaseSprite( )
+	{
+		this->layer = 0;
+	}
+
+	virtual bool isWithinRect( Rectangle rect )
+	{
+		return true;
+	}
+
+	virtual void render( Vector2 cameraPosition )
+	{
+		
+	}
+
+	virtual void print( )
+	{
+		std::cout << "BaseSprite " << this << ":\n\tlayer = " << layer
+;
+	}
+
+	bool operator < ( BaseSprite sprite )
+	{
+		return layer < sprite.layer;
+	}
+	bool operator <= ( BaseSprite sprite )
+	{
+		return layer <= sprite.layer;
+	}
+	bool operator > ( BaseSprite sprite )
+	{
+		return layer > sprite.layer;
+	}
+	bool operator >= ( BaseSprite sprite )
+	{
+		return layer >= sprite.layer;
+	}
+	bool operator == ( BaseSprite sprite )
+	{
+		return layer == sprite.layer;
+	}
+	bool operator != ( BaseSprite sprite )
+	{
+		return layer != sprite.layer;
+	}
+	float getLayer( )
+	{
+		return layer;
+	}
+	void setLayer( float layer )
+	{
+		this->layer = layer;
+	}
+};
+
+class Sprite : public BaseSprite
 {
 	protected:
 	Texture2D texture;
@@ -18,7 +85,6 @@ class Sprite
 	Rectangle sourceRect;
 	Rectangle destinationRect;
 	Rectangle boundingRect;
-	float layer;
 	float rotation = 0;
 	int scale = 1;
 	Color tint = WHITE;
@@ -34,9 +100,6 @@ class Sprite
 	{
 		update( texture, position, layer, rotation, scale, tint, pivotPoint );
 	}
-
-	Sprite( )
-	{;}
 
 	/*-----------------------------------------------
 	* @brief: updates all data members with new values
@@ -91,6 +154,11 @@ class Sprite
 		}
 	}
 
+	bool isWithinRect( Rectangle rect )
+	{
+		return CheckCollisionRecs( rect, this->boundingRect );
+	}
+
 	void render( Vector2 cameraPosition )
 	{
 		Rectangle realDestination = { destinationRect.x - cameraPosition.x, destinationRect.y - cameraPosition.y,
@@ -104,31 +172,6 @@ class Sprite
 		std::cout << "Sprite " << this << ":\n\tposition = {" << position.x << ", " << position.y << "}\n\tlayer = " << layer
 			<< "\n\trotation = " << rotation << "\n\tscale = " << scale << "\n\ttint = {" << (int)tint.r << ", "
 			<< ( int ) tint.g << ", " << ( int ) tint.b << "}\n\tpivotPoint = {" << pivotPoint.x << ", " << pivotPoint.y << "}\n";
-	}
-
-	bool operator < ( Sprite sprite )
-	{
-		return layer < sprite.layer;
-	}
-	bool operator <= ( Sprite sprite )
-	{
-		return layer <= sprite.layer;
-	}
-	bool operator > ( Sprite sprite )
-	{
-		return layer > sprite.layer;
-	}
-	bool operator >= ( Sprite sprite )
-	{
-		return layer >= sprite.layer;
-	}
-	bool operator == ( Sprite sprite )
-	{
-		return layer == sprite.layer;
-	}
-	bool operator != ( Sprite sprite )
-	{
-		return layer != sprite.layer;
 	}
 
 	Texture2D getTexture( )
@@ -152,14 +195,6 @@ class Sprite
 	Rectangle getBoundingRect( )
 	{
 		return boundingRect;
-	}
-	float getLayer( )
-	{
-		return layer;
-	}
-	void setLayer( float layer )
-	{
-		this->layer = layer;
 	}
 	float getRotation( )
 	{
@@ -201,7 +236,7 @@ class Sprite
 class CustomCamera
 {
 	private:
-	std::vector<Sprite*> buffer;
+	std::vector<BaseSprite*> buffer;
 	RenderTexture2D renderTexture;
 	Vector2 centeredPosition;
 	Vector2 realPosition;
@@ -222,7 +257,7 @@ class CustomCamera
 	CustomCamera( Vector2 resolution, float renderScale ) : CustomCamera( Vector2 { 0, 0 }, resolution, renderScale )
 	{;}
 
-	void addToBuffer( Sprite* sprite )
+	void addToBuffer( BaseSprite* sprite )
 	{
 		buffer.push_back( sprite );
 	}
@@ -249,19 +284,30 @@ class CustomCamera
 		   // Iteration has to occur backwards because indices are shifted back when deleting elements
 		for ( int i = buffer.size( ) - 1; i >= 0; i-- )
 		{
-			if ( !CheckCollisionRecs( viewRectangle, buffer.at( i )->getBoundingRect() ) )
+			if ( !buffer.at( i )->isWithinRect( viewRectangle ) )
 			{
 				buffer.erase( buffer.begin() + i );
 			}
 		}
 
 		   // Sorting buffer by layer (lowest to highest)
-		// TODO: Implement layer sorting
+		   //Andrew Thomas (this part)
+		for ( int i = 0; i < buffer.size( ); i++ )
+		{
+			int minIndex = i;                          //variable to track lowest layer value
+			for ( int j = i + 1; j < buffer.size( ); j++ )
+			{
+				if ( *buffer[ j ] < *buffer[ minIndex ] )
+				{
+					minIndex = j;
+				}
+			}
+		}
       
 		   // Rendering everything in the buffer to a texture
 		BeginTextureMode( renderTexture );
 		ClearBackground( BLACK );
-		for ( Sprite *sprite : buffer )
+		for ( BaseSprite*sprite : buffer )
 		{
 			sprite->render( realPosition );
 		}

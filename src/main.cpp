@@ -63,8 +63,7 @@ int main() {
     CustomCamera mainCamera = CustomCamera( Vector2 { 320.0f, 180.0f }, 4.0f );
     screenHandler.cameras.push_back( &mainCamera );
     Sprite sprite1 = Sprite( textureMap[ "player" ], Vector2 { 0, 0 }, 0 );
-    Sprite sprite2 = Sprite( textureMap[ "enemy" ], Vector2 { -40, 20 }, 1, 30, 2, BLUE, { 0, 10 } );
-    sprite1.print( );
+    Sprite sprite2 = Sprite( textureMap[ "enemy" ], Vector2 { 0, 0 }, 1, 30, 2, BLUE, { 0, 10 } );
     while ( !WindowShouldClose() )
     {
        sprite2.setRotation( sprite2.getRotation( ) + 2 );
