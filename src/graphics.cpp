@@ -7,6 +7,7 @@
 #include "raymath.h"
 #include "vector"
 #include <iostream>
+#include "textureloader.cpp"
 
 const float defaultCamWidth = 320;
 const float defaultCamHeight = 180;
@@ -117,7 +118,7 @@ class Sprite : public BaseSprite
 	}
 	void update( std::string texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
 	{
-		//this->texture = textureMap[texture];
+		this->texture = textureMap[ texture ];
 		this->position = position;
 		this->layer = layer;
 		this->rotation = rotation;
@@ -130,7 +131,6 @@ class Sprite : public BaseSprite
 	{
 		this->position = position;
 		this->layer = layer;
-		this->rotation = rotation;
 		updateRectangles( );
 	}
 
@@ -302,6 +302,9 @@ class CustomCamera
 					minIndex = j;
 				}
 			}
+			BaseSprite* temp = buffer[ i ];
+			buffer[ i ] = buffer[ minIndex ];
+			buffer[ minIndex ] = temp;
 		}
       
 		   // Rendering everything in the buffer to a texture

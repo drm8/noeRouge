@@ -62,11 +62,14 @@ int main() {
     loadAllTextures( );
     CustomCamera mainCamera = CustomCamera( Vector2 { 320.0f, 180.0f }, 4.0f );
     screenHandler.cameras.push_back( &mainCamera );
-    Sprite sprite1 = Sprite( textureMap[ "player" ], Vector2 { 0, 0 }, 0 );
-    Sprite sprite2 = Sprite( textureMap[ "enemy" ], Vector2 { 0, 0 }, 1, 30, 2, BLUE, { 0, 10 } );
+    Sprite sprite1 = Sprite( "player", Vector2 { 0, 0 }, 0 );
+    Vector2 playerPosition = Vector2 { 0, -40 };
+    Sprite sprite2 = Sprite( "player", playerPosition, playerPosition.y, 0, 1, BLUE );
+    sprite2.print( );
     while ( !WindowShouldClose() )
     {
-       sprite2.setRotation( sprite2.getRotation( ) + 2 );
+       playerPosition.y += 0.25;
+       sprite2.update( playerPosition, playerPosition.y );
        mainCamera.addToBuffer( &sprite1 );
        mainCamera.addToBuffer( &sprite2 );
        screenHandler.renderAll( );
