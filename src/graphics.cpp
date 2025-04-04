@@ -5,7 +5,6 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "vector"
-//#include "textureloader.cpp"
 #include <iostream>
 
 const float defaultCamWidth = 320;
@@ -26,41 +25,16 @@ class Sprite
 	Vector2 pivotPoint;
 
 	public:
-	Sprite( std::string texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
+	Sprite( std::string texture, Vector2 position, float layer, float rotation = 0, float scale = 1, Color tint = WHITE, Vector2 pivotPoint = Vector2 { 0, 0 } )
 	{
 		update( texture, position, layer, rotation, scale, tint, pivotPoint );
 	}
 
-	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint, Vector2 pivotPoint )
+	Sprite( Texture2D texture, Vector2 position, float layer, float rotation = 0, float scale = 1, Color tint = WHITE, Vector2 pivotPoint = Vector2 { 0, 0 } )
 	{
 		update( texture, position, layer, rotation, scale, tint, pivotPoint );
 	}
 
-	         // Constructors with fewer parameters
-	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale, Color tint )
-		: Sprite( texture, position, layer, rotation, scale, tint, Vector2 { 0, 0 } )
-	{;}
-	Sprite( Texture2D texture, Vector2 position, float layer, float rotation, float scale )
-		: Sprite( texture, position, layer, rotation, scale, WHITE, Vector2 { 0, 0 } )
-	{;}
-	Sprite( Texture2D texture, Vector2 position, float layer, float rotation )
-		: Sprite( texture, position, layer, rotation, 1, WHITE, Vector2 { 0, 0 } )
-	{;}
-	Sprite( Texture2D texture, Vector2 position, float layer )
-		: Sprite( texture, position, layer, 0, 1, WHITE, Vector2 { 0, 0 } )
-	{;}
-	Sprite( std::string texture, Vector2 position, float layer, float rotation, float scale, Color tint )
-		: Sprite( texture, position, layer, rotation, scale, tint, Vector2 { 0, 0 } )
-	{;}
-	Sprite( std::string texture, Vector2 position, float layer, float rotation, float scale )
-		: Sprite( texture, position, layer, rotation, scale, WHITE, Vector2 { 0, 0 } )
-	{;}
-	Sprite( std::string texture, Vector2 position, float layer, float rotation )
-		: Sprite( texture, position, layer, rotation, 1, WHITE, Vector2 { 0, 0 } )
-	{;}
-	Sprite( std::string texture, Vector2 position, float layer )
-		: Sprite( texture, position, layer, 0, 1, WHITE, Vector2 { 0, 0 } )
-	{;}
 	Sprite( )
 	{;}
 
@@ -235,7 +209,7 @@ class CustomCamera
 	float renderScale;               // How much the renderTexture is scaled up when drawing to the screen
 	Rectangle viewRectangle;
 	public:
-	CustomCamera( Vector2 position, Vector2 resolution, float renderScale )
+	CustomCamera( Vector2 position = { 0, 0 }, Vector2 resolution = { defaultCamWidth, defaultCamHeight }, float renderScale = 1.0f )
 	{
 		buffer = { };
 		renderTexture = LoadRenderTexture( (int) resolution.x, ( int ) resolution.y );
@@ -244,9 +218,8 @@ class CustomCamera
 		this->renderScale = renderScale;
 		viewRectangle = { position.x - resolution.x / 2, position.y - resolution.y / 2, resolution.x, resolution.y };
 	}
+
 	CustomCamera( Vector2 resolution, float renderScale ) : CustomCamera( Vector2 { 0, 0 }, resolution, renderScale )
-	{;}
-	CustomCamera( ) : CustomCamera( Vector2 { defaultCamWidth, defaultCamHeight }, 1.0f )
 	{;}
 
 	void addToBuffer( Sprite* sprite )
@@ -298,13 +271,13 @@ class CustomCamera
 
 	void renderToScreen( )
 	{
-		{
-			DrawTexturePro( renderTexture.texture, { 0, 0, resolution.x, -resolution.y },
-								 {0, 0, resolution.x * renderScale, resolution.y * renderScale },
-								 {0, 0}, 0, WHITE );
-		}
+		DrawTexturePro( renderTexture.texture, { 0, 0, resolution.x, -resolution.y },
+								{0, 0, resolution.x * renderScale, resolution.y * renderScale },
+								{0, 0}, 0, WHITE );
 	}
 };
+
+//void CustomCamera( Vector2 position = { 0, 0 }, Vector2 resolution = { 320, 180 }, float renderScale = 1.0f );
 
 class ScreenHandler
 {
